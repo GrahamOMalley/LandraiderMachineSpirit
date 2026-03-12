@@ -18,6 +18,10 @@ ezButton button(2); // D4 on esp mini
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
 
+const unsigned long LONG_PRESS_MS = 1000;
+unsigned long pressStartTime = 0;
+bool longPressHandled = false;
+
 void setup() {
 #if (defined ESP32)
   FPSerial.begin(9600, SERIAL_8N1, /*rx =*/D3, /*tx =*/D2);
@@ -51,6 +55,17 @@ void loop() {
   button.loop();
 
   if (button.isPressed()) {
+    pressStartTime = millis();
+    longPressHandled = false;
+  }
+
+  if (button.getState() == LOW && !longPressHandled && (millis() - pressStartTime >= LONG_PRESS_MS)) {
+    longPressHandled = true;
+    Serial.println(F("Silence falls upon the battlefield... for now."));
+    myDFPlayer.stop();
+  }
+
+  if (button.isReleased() && !longPressHandled) {
     Serial.println(F("The Dark Prince demands an anthem - indulge!"));
     myDFPlayer.randomAll();
   }
@@ -72,7 +87,7 @@ void printDetail(uint8_t type, int value) {
       Serial.println(F("data-slate inserted. She Who Thirsts is pleased."));
       break;
     case DFPlayerCardRemoved:
-      Serial.println(F("data-slate removed. THIS SILENCE OFFENDS SLAANESH!"));
+      Serial.println(F("data-slate removed. THIS SILENCES OFFENDS SLAANESH!"));
       break;
     case DFPlayerCardOnline:
       Serial.println(F("data-slate online. Anthems of excess stand ready."));
