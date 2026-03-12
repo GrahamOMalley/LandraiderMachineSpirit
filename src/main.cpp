@@ -1,6 +1,5 @@
 /***************************************************
 Play a random song on button press
-TODO: long press turn off? not sure if ezButton can do this with a momentary switch
  ****************************************************/
 
 #include "Arduino.h"
@@ -32,30 +31,27 @@ void setup() {
   Serial.begin(115200);
 
   Serial.println();
-  Serial.println(F("Land Raider machine spirit has awoken"));
-  Serial.println(F("Waking DFPlayer machine spirit ... (May take 3~5 seconds)"));
+  Serial.println(F("The daemon-engine stirs. Slaanesh be praised."));
+  Serial.println(F("Awakening the machine spirit ... (May take 3~5 seconds)"));
 
   if (!myDFPlayer.begin(FPSerial, /*isACK = */ true, /*doReset = */ true)) {  //Use serial to communicate with mp3.
-    Serial.println(F("Unable to begin:"));
-    Serial.println(F("1.Please recheck the connection!"));
-    Serial.println(F("2.Please insert the SD card!"));
+    Serial.println(F("The machine spirit will not submit!"));
+    Serial.println(F("1. Check the profane connections!"));
+    Serial.println(F("2. Insert the data-slate (SD card)!"));
     while (true) {
       delay(0);  // Code to compatible with ESP8266 watch dog.
     }
   }
-  Serial.println(F("DFPlayer Mini online. Praise the Omnissiah."));
-  myDFPlayer.volume(30);  //Set volume value. From 0 to 30
+  Serial.println(F("Sonic amplifier online. Glory to the Dark Prince."));
+  myDFPlayer.volume(20);  //Set volume value. From 0 to 30
+  Serial.println(F("Anthems of excess loaded. The daemon-engine hungers."));
 }
 
 void loop() {
   button.loop();
-  int btnState = button.getState();
 
-  // if(btnState==0){
-    if(button.isPressed()){
-    // myDFPlayer.next() does next track;
-    // TODO: if playing, stop?
-    Serial.println("Button pressed - Praise the Omnissiah!");
+  if (button.isPressed()) {
+    Serial.println(F("The Dark Prince demands an anthem - indulge!"));
     myDFPlayer.randomAll();
   }
 
@@ -67,54 +63,54 @@ void loop() {
 void printDetail(uint8_t type, int value) {
   switch (type) {
     case TimeOut:
-      Serial.println(F("Time Out!"));
+      Serial.println(F("The daemon-engine grows impatient - communion timed out!"));
       break;
     case WrongStack:
-      Serial.println(F("Stack Wrong!"));
+      Serial.println(F("Corruption in the data-stack. Fulgrim would be disappointed."));
       break;
     case DFPlayerCardInserted:
-      Serial.println(F("Card Inserted!"));
+      Serial.println(F("data-slate inserted. She Who Thirsts is pleased."));
       break;
     case DFPlayerCardRemoved:
-      Serial.println(F("Card Removed!"));
+      Serial.println(F("data-slate removed. THIS SILENCE OFFENDS SLAANESH!"));
       break;
     case DFPlayerCardOnline:
-      Serial.println(F("Card Online!"));
+      Serial.println(F("data-slate online. Anthems of excess stand ready."));
       break;
     case DFPlayerUSBInserted:
-      Serial.println("USB Inserted!");
+      Serial.println(F("Profane mechadendrite connected."));
       break;
     case DFPlayerUSBRemoved:
-      Serial.println("USB Removed!");
+      Serial.println(F("Profane mechadendrite removed."));
       break;
     case DFPlayerPlayFinished:
-      Serial.print(F("Number:"));
+      Serial.print(F("Anthem of excess "));
       Serial.print(value);
-      Serial.println(F(" Play Finished!"));
+      Serial.println(F(" has faded. The Dark Prince demands more."));
       break;
     case DFPlayerError:
-      Serial.print(F("DFPlayerError:"));
+      Serial.print(F("The daemon-engine screams in agony - error: "));
       switch (value) {
         case Busy:
-          Serial.println(F("Card not found"));
+          Serial.println(F("data-slate not found. The silence is unbearable!"));
           break;
         case Sleeping:
-          Serial.println(F("Sleeping"));
+          Serial.println(F("The daemon slumbers in blissful torpor..."));
           break;
         case SerialWrongStack:
-          Serial.println(F("Get Wrong Stack"));
+          Serial.println(F("Data-stack corrupted beyond even Slaanesh's tolerance."));
           break;
         case CheckSumNotMatch:
-          Serial.println(F("Check Sum Not Match"));
+          Serial.println(F("Data purity compromised. Perfection demands better."));
           break;
         case FileIndexOut:
-          Serial.println(F("File Index Out of Bound"));
+          Serial.println(F("Anthem index exceeds even our excessive manifest!"));
           break;
         case FileMismatch:
-          Serial.println(F("Cannot Find File"));
+          Serial.println(F("Requested anthem is lost to the warp."));
           break;
         case Advertise:
-          Serial.println(F("In Advertise"));
+          Serial.println(F("Unsanctioned ecstatic transmission detected."));
           break;
         default:
           break;
