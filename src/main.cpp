@@ -17,7 +17,6 @@ SoftwareSerial softSerial(/*rx =*/4, /*tx =*/5);
 ezButton button(2); // D4 on esp mini
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
-const char *trackNameFromNumber(int trackNumber);
 void reportCurrentTrack();
 
 const unsigned long LONG_PRESS_MS = 1000;
@@ -87,24 +86,6 @@ void loop() {
   }
 }
 
-const char *trackNameFromNumber(int trackNumber) {
-  // Map DFPlayer numeric file indexes (1..N) to names in your SD card order.
-  static const char *const kTrackNames[] = {
-    "Track 1 - Rename me",
-    "Track 2 - Rename me",
-    "Track 3 - Rename me",
-    "Track 4 - Rename me",
-    "Track 5 - Rename me",
-  };
-
-  const size_t trackCount = sizeof(kTrackNames) / sizeof(kTrackNames[0]);
-  if (trackNumber < 1 || static_cast<size_t>(trackNumber) > trackCount) {
-    return "Unknown track (not mapped)";
-  }
-
-  return kTrackNames[trackNumber - 1];
-}
-
 void reportCurrentTrack() {
   const int trackNumber = myDFPlayer.readCurrentFileNumber();
   if (trackNumber <= 0) {
@@ -113,9 +94,7 @@ void reportCurrentTrack() {
   }
 
   Serial.print(F("Now playing #"));
-  Serial.print(trackNumber);
-  Serial.print(F(": "));
-  Serial.println(trackNameFromNumber(trackNumber));
+  Serial.println(trackNumber);
 }
 
 void printDetail(uint8_t type, int value) {
@@ -144,9 +123,7 @@ void printDetail(uint8_t type, int value) {
     case DFPlayerPlayFinished:
       Serial.print(F("Anthem of excess "));
       Serial.print(value);
-      Serial.print(F(" ("));
-      Serial.print(trackNameFromNumber(value));
-      Serial.println(F(") has faded. The Dark Prince demands more."));
+      Serial.println(F(" has faded. The Dark Prince demands more."));
       break;
     case DFPlayerError:
       Serial.print(F("The daemon-engine screams in agony - error: "));
