@@ -14,9 +14,7 @@ A Warhammer 40K-themed sound board built on a Wemos D1 Mini. Press a button to p
 
 ### Wiring
 
-> Export your Fritzing schematic as an SVG or PNG and place it in `docs/`, then uncomment the line below.
-
-<!-- ![Breadboard layout](docs/breadboard.svg) -->
+![Breadboard layout](docs/breadboard.svg)
 
 Key connections:
 - DFPlayer `RX` → D1 Mini `D2` (TX)
