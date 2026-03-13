@@ -17,10 +17,15 @@ SoftwareSerial softSerial(/*rx =*/4, /*tx =*/5);
 ezButton button(2); // D4 on esp mini
 DFRobotDFPlayerMini myDFPlayer;
 void printDetail(uint8_t type, int value);
+const char *trackNameFromNumber(int trackNumber);
+void reportCurrentTrack();
 
 const unsigned long LONG_PRESS_MS = 1000;
+const unsigned long TRACK_QUERY_DELAY_MS = 250;
 unsigned long pressStartTime = 0;
 bool longPressHandled = false;
+bool trackQueryPending = false;
+unsigned long trackQueryAtMs = 0;
 
 void setup() {
 #if (defined ESP32)
@@ -47,7 +52,7 @@ void setup() {
     }
   }
   Serial.println(F("Sonic amplifier online. Glory to the Dark Prince."));
-  myDFPlayer.volume(20);  //Set volume value. From 0 to 30
+  myDFPlayer.volume(22);  //Set volume value. From 0 to 30
   Serial.println(F("Anthems of excess loaded. The daemon-engine hungers."));
 }
 
@@ -68,11 +73,49 @@ void loop() {
   if (button.isReleased() && !longPressHandled) {
     Serial.println(F("The Dark Prince demands an anthem - indulge!"));
     myDFPlayer.randomAll();
+    trackQueryPending = true;
+    trackQueryAtMs = millis() + TRACK_QUERY_DELAY_MS;
+  }
+
+  if (trackQueryPending && millis() >= trackQueryAtMs) {
+    trackQueryPending = false;
+    reportCurrentTrack();
   }
 
   if (myDFPlayer.available()) {
     printDetail(myDFPlayer.readType(), myDFPlayer.read());  //Print the detail message from DFPlayer to handle different errors and states.
   }
+}
+
+const char *trackNameFromNumber(int trackNumber) {
+  // Map DFPlayer numeric file indexes (1..N) to names in your SD card order.
+  static const char *const kTrackNames[] = {
+    "Track 1 - Rename me",
+    "Track 2 - Rename me",
+    "Track 3 - Rename me",
+    "Track 4 - Rename me",
+    "Track 5 - Rename me",
+  };
+
+  const size_t trackCount = sizeof(kTrackNames) / sizeof(kTrackNames[0]);
+  if (trackNumber < 1 || static_cast<size_t>(trackNumber) > trackCount) {
+    return "Unknown track (not mapped)";
+  }
+
+  return kTrackNames[trackNumber - 1];
+}
+
+void reportCurrentTrack() {
+  const int trackNumber = myDFPlayer.readCurrentFileNumber();
+  if (trackNumber <= 0) {
+    Serial.println(F("Current track number unavailable right now."));
+    return;
+  }
+
+  Serial.print(F("Now playing #"));
+  Serial.print(trackNumber);
+  Serial.print(F(": "));
+  Serial.println(trackNameFromNumber(trackNumber));
 }
 
 void printDetail(uint8_t type, int value) {
@@ -101,7 +144,9 @@ void printDetail(uint8_t type, int value) {
     case DFPlayerPlayFinished:
       Serial.print(F("Anthem of excess "));
       Serial.print(value);
-      Serial.println(F(" has faded. The Dark Prince demands more."));
+      Serial.print(F(" ("));
+      Serial.print(trackNameFromNumber(value));
+      Serial.println(F(") has faded. The Dark Prince demands more."));
       break;
     case DFPlayerError:
       Serial.print(F("The daemon-engine screams in agony - error: "));
